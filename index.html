@@ -359,24 +359,26 @@
     </div>
 </div>    
 <script type="module">
-    // IMPORTY FIREBASE
+// IMPORTY FIREBASE
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // DODAJEMY TE LINIE:
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // TWOJA KONFIGURACJA (Skopiuj ją z konsoli Firebase)
+    // TWOJA KONFIGURACJA
     const firebaseConfig = {
-  apiKey: "AIzaSyCpqn8ZaNRbUpu7Q-gEhOfboEBisrEtWdE",
-  authDomain: "technova-store-d7433.firebaseapp.com",
-  projectId: "technova-store-d7433",
-  storageBucket: "technova-store-d7433.firebasestorage.app",
-  messagingSenderId: "839917141980",
-  appId: "1:839917141980:web:e432515b2bf7ef859b5919",
-  measurementId: "G-H3VLEDMFSQ"
-};
+        apiKey: "AIzaSyCpqn8ZaNRbUpu7Q-gEhOfboEBisrEtWdE",
+        authDomain: "technova-store-d7433.firebaseapp.com",
+        projectId: "technova-store-d7433",
+        storageBucket: "technova-store-d7433.firebasestorage.app",
+        messagingSenderId: "839917141980",
+        appId: "1:839917141980:web:e432515b2bf7ef859b5919",
+        measurementId: "G-H3VLEDMFSQ"
+    };
 
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getFirestore(firebaseApp);
-
+    const auth = getAuth(firebaseApp); // <--- INICJACJA AUTH
     const VAT = 1.23;
     const STATUSES = ["Nowe", "W realizacji", "Zrealizowane", "Wysłane", "Odebrane", "Anulowane"];
     
@@ -766,18 +768,19 @@ loadData();
         function changeImg(el, src) { document.getElementById('detail-img-main').src = src; document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('active')); el.classList.add('active'); }
         function applyPromo() { const code = document.getElementById('cart-promo-input').value.toUpperCase(); const found = promos.find(p => p.code === code); if(found) { activePromo = found; updateCartUI(); alert("Zniżka!"); } else alert("Zły kod."); }
 
-        document.getElementById('auth-form').onsubmit = (e) => {
+document.getElementById('auth-form').onsubmit = async (e) => {
             e.preventDefault();
-            const u = users.find(x => x.login === document.getElementById('login').value && x.pass === document.getElementById('pass').value);
-            if(u) {
-                currUser = u;
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('app-view').classList.remove('hidden');
-                document.getElementById('nav-logout-btn').classList.remove('hidden');
-                if(u.role === 'employee') document.getElementById('admin-panel').classList.remove('hidden');
-                else document.getElementById('nav-cart-btn').classList.remove('hidden');
-                render();
-            } else alert("Błąd logowania!");
+            const email = document.getElementById('login').value;
+            const pass = document.getElementById('pass').value;
+
+            try {
+                // Próba zalogowania w Firebase Auth
+                await signInWithEmailAndPassword(auth, email, pass);
+                // Nie musisz tu ustawiać currUser, zrobi to onAuthStateChanged poniżej
+            } catch (error) {
+                console.error("Błąd logowania:", error);
+                alert("Błąd logowania! Sprawdź email i hasło.");
+            }
         };
 
         document.getElementById('user-form').onsubmit = (e) => {
@@ -835,8 +838,7 @@ function deleteProd(id) { if(confirm("Usunąć produkt?")) { prods=prods.filter(
         function closeProduct() { document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('product-detail').classList.add('hidden'); }
         function logout() { location.reload(); }
         render();
-window.login = login; // Tego brakuje w Twoim pliku    
-window.logout = logout;
+    window.logout = logout;
 window.showProduct = showProduct;
 window.addToCart = addToCart;
 window.editProd = editProd;
