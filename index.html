@@ -756,7 +756,19 @@ loadData();
         function closeProduct() { document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('product-detail').classList.add('hidden'); }
         function logout() { location.reload(); }
         render();
-    </script>
+    window.logout = logout;
+window.showProduct = showProduct;
+window.addToCart = addToCart;
+window.editProd = editProd;
+window.deleteProd = deleteProd;
+window.editUser = editUser;
+window.deleteUser = deleteUser;
+window.updateStatus = updateStatus;
+window.showOrderDetails = showOrderDetails;
+window.applyPromo = applyPromo;
+window.checkout = checkout;
+window.closeProduct = closeProduct;
+window.changeImg = changeImg;</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
