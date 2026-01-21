@@ -748,7 +748,20 @@ loadData();
             } 
         }
 
-        function deleteProd(id) { if(confirm("Usunąć produkt?")) { prods=prods.filter(x=>x.id!==id); save(); } }
+function calcBrutto() {
+    const nettoInput = document.getElementById('p-price-netto');
+    const bruttoInput = document.getElementById('p-price-brutto');
+    const netto = parseFloat(nettoInput.value);
+
+    if (!isNaN(netto)) {
+        // Obliczamy brutto: netto * 1.23
+        const brutto = netto * VAT;
+        bruttoInput.value = brutto.toFixed(2);
+    } else {
+        bruttoInput.value = '';
+    }
+}        
+function deleteProd(id) { if(confirm("Usunąć produkt?")) { prods=prods.filter(x=>x.id!==id); save(); } }
         function deleteOrder(id) { if(confirm("Usunąć zamówienie?")) { orders=orders.filter(x=>x.id!==id); save(); } }
         function deleteUser(id) { if (currUser && id === currUser.id) return alert("Nie możesz usunąć siebie!"); if (confirm("Usunąć konto?")) { users = users.filter(u => u.id !== id); save(); } }
         function editUser(id) { const u = users.find(x => x.id === id); document.getElementById('u-id').value = u.id; document.getElementById('u-login').value = u.login; document.getElementById('u-pass').value = u.pass; document.getElementById('u-role').value = u.role; }
@@ -760,6 +773,8 @@ loadData();
 window.showProduct = showProduct;
 window.addToCart = addToCart;
 window.editProd = editProd;
+// Musimy przypisać ją do window, bo używamy type="module"
+window.calcBrutto = calcBrutto;
 window.deleteProd = deleteProd;
 window.editUser = editUser;
 window.deleteUser = deleteUser;
