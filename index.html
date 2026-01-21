@@ -638,6 +638,24 @@ loadData();
         function confirmBlik() {
             clearInterval(window.blikInterval);
             document.getElementById('blik-modal').classList.add('hidden');
+// 2. Przygotowanie danych do Google Analytics
+    // Pobieramy cenę z tekstu "123.00 zł" i zamieniamy na liczbę 123.00
+    const totalValue = parseFloat(document.getElementById('cart-total').innerText.replace(' zł', '').replace(',', '.'));
+    
+    // --- START: KOD ŚLEDZENIA GOOGLE ANALYTICS ---
+    if (typeof gtag === 'function') {
+        gtag('event', 'purchase', {
+            transaction_id: 'T_' + Date.now(), // Unikalny ID transakcji
+            value: totalValue,                // Całkowity przychód
+            currency: 'PLN',                  // Waluta
+            items: cart.map(i => ({           // Lista produktów
+                item_name: i.name,
+                price: i.price,
+                quantity: 1
+            }))
+        });
+    }
+    // --- KONIEC: KOD ŚLEDZENIA ---
             
             // Kontynuacja składania zamówienia (Twój stary kod z checkout)
             const itemsSnapshot = cart.map(i => ({ name: i.name, price: i.price }));
