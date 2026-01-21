@@ -1,5 +1,720 @@
-<html>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechNova - Professional Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root { 
+            --glass: rgba(255, 255, 255, 0.05); 
+            --glass-border: rgba(255, 255, 255, 0.15); 
+            --accent: #6366f1; 
+            --neon-red: #ff0055; 
+            --neon-green: #39ff14; 
+        }
+        body { background: radial-gradient(circle at top right, #0f172a, #020617); color: #f1f5f9; min-height: 100vh; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .hidden { display: none !important; }
+        .glass-panel { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; }
+        .glass-input { background: rgba(255, 255, 255, 0.03) !important; border: 1px solid var(--glass-border) !important; color: white !important; }
+        .glass-input:focus { background: rgba(255, 255, 255, 0.08) !important; border-color: var(--accent) !important; box-shadow: 0 0 10px rgba(99, 102, 241, 0.3) !important; }
+        
+        .product-card { background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 20px; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+        .product-card:hover { transform: translateY(-5px); border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        
+        .recommended-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 15px; padding: 10px; transition: 0.2s; cursor: pointer; }
+        .recommended-card:hover { border-color: var(--accent); background: rgba(255,255,255,0.08); }
+
+        .discount-badge { 
+            position: absolute; top: 10px; right: 10px; 
+            background: var(--neon-red); color: white; 
+            padding: 4px 12px; border-radius: 10px; 
+            font-weight: bold; font-size: 0.85rem; z-index: 5;
+            box-shadow: 0 0 10px var(--neon-red);
+            animation: neon-pulse 1.5s infinite alternate;
+        }
+
+        .neon-stock {
+            display: inline-block; padding: 6px 16px; border-radius: 8px;
+            font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            font-size: 0.85rem; border: 1px solid transparent;
+        }
+        .neon-stock-available { color: var(--neon-green); border-color: var(--neon-green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.3); animation: neon-pulse-green 2s infinite alternate; }
+        .neon-stock-empty { color: var(--neon-red); border-color: var(--neon-red); box-shadow: 0 0 15px rgba(255, 0, 85, 0.3); animation: neon-pulse-red 2s infinite alternate; }
+
+        @keyframes neon-pulse { from { opacity: 0.8; } to { opacity: 1; box-shadow: 0 0 20px var(--neon-red); } }
+        @keyframes neon-pulse-green { from { box-shadow: 0 0 5px var(--neon-green); } to { box-shadow: 0 0 20px var(--neon-green); } }
+        @keyframes neon-pulse-red { from { box-shadow: 0 0 5px var(--neon-red); } to { box-shadow: 0 0 20px var(--neon-red); } }
+
+        .thumb-img { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; opacity: 0.6; }
+        .thumb-img:hover, .thumb-img.active { border-color: var(--accent); opacity: 1; }
+
+        .admin-tools { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 5px; }
+        .spec-item { border-left: 3px solid var(--accent); padding-left: 10px; margin-bottom: 5px; font-size: 0.9rem; background: rgba(255,255,255,0.03); padding: 5px 10px; border-radius: 0 5px 5px 0; }
+        .pointer { cursor: pointer; }
+        .status-select { background: #1e293b !important; color: white !important; border: 1px solid var(--glass-border) !important; font-size: 0.75rem; padding: 2px 5px; border-radius: 5px; }
+        .old-price { text-decoration: line-through; color: #94a3b8; font-size: 0.85em; }
+        .scroll-area { max-height: 350px; overflow-y: auto; scrollbar-width: thin; padding-right: 5px; }
+        .status-badge { padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: bold; background: var(--accent); color: white; }
+        
+        .stat-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+        .stat-label { font-size: 0.75rem; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
+
+        .history-item { border-left: 2px solid var(--accent); padding-left: 15px; position: relative; margin-bottom: 15px; }
+        .history-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
+        .history-date { font-size: 0.7rem; opacity: 0.5; }
+        .history-status { font-weight: bold; font-size: 0.85rem; color: var(--accent); }
+
+        /* System Opinii Stylizacja */
+        .review-item { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; margin-bottom: 15px; }
+        .rating-stars { color: #f59e0b; }
+        .star-rating-input { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 5px; }
+        .star-rating-input input { display: none; }
+        .star-rating-input label { cursor: pointer; font-size: 1.5rem; color: rgba(255,255,255,0.2); transition: 0.2s; }
+        .star-rating-input input:checked ~ label, .star-rating-input label:hover, .star-rating-input label:hover ~ label { color: #f59e0b; }
+
+        select.glass-input option { background: #0f172a; color: white; }
+    </style>
+</head>
 <body>
-<title>Test</title>
+
+    <nav class="navbar py-3">
+        <div class="container glass-panel px-4">
+            <a class="navbar-brand fw-bold text-white fs-4" href="#" onclick="location.reload()">TechNova</a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <button id="nav-cart-btn" class="btn btn-outline-light border-0 position-relative hidden" data-bs-toggle="modal" data-bs-target="#cartModal">
+                    <i class="bi bi-cart3"></i>
+                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">0</span>
+                </button>
+                <button id="nav-logout-btn" class="btn btn-sm btn-outline-danger rounded-pill px-4 hidden" onclick="logout()">Wyloguj</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="auth-section" class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+        <div class="glass-panel p-5 w-100 shadow-lg" style="max-width: 400px;">
+            <h4 class="text-center fw-bold mb-4">Panel Logowania</h4>
+            <form id="auth-form">
+                <input type="text" id="login" class="form-control glass-input mb-3" placeholder="Login" required>
+                <input type="password" id="pass" class="form-control glass-input mb-4" placeholder="Hasło" required>
+                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">ZALOGUJ</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-view" class="container hidden pb-5">
+        
+        <div id="admin-panel" class="hidden mb-5">
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Całkowity Obrót</div>
+                        <div id="stat-revenue" class="stat-value">0.00 zł</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Zamówienia (Nowe/Suma)</div>
+                        <div id="stat-orders" class="stat-value">0 / 0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Wartość Magazynu</div>
+                        <div id="stat-stock-val" class="stat-value text-info">0.00 zł</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Bestseller</div>
+                        <div id="stat-bestseller" class="stat-value text-warning" style="font-size: 1rem; overflow: hidden; text-wrap: nowrap;">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 border-primary border-opacity-25">
+                <div class="row g-4">
+                    <div class="col-lg-3">
+                        <div class="p-3 glass-panel h-100">
+                            <h6 class="fw-bold mb-3 text-uppercase small text-primary">Produkt</h6>
+                            <form id="prod-form" class="row g-2">
+                                <input type="hidden" id="p-id">
+                                <input type="text" id="p-name" class="form-control glass-input form-control-sm" placeholder="Nazwa" required>
+                                <textarea id="p-spec" class="form-control glass-input form-control-sm" placeholder="Specyfikacja (linie)"></textarea>
+                                <div class="col-6"><input type="number" step="0.01" id="p-price-netto" class="form-control glass-input form-control-sm" placeholder="Netto" oninput="calcBrutto()" required></div>
+                                <div class="col-6"><input type="number" step="0.01" id="p-price-brutto" class="form-control glass-input form-control-sm" placeholder="Brutto" readonly></div>
+                                <div class="col-4"><input type="number" id="p-discount" class="form-control glass-input form-control-sm" placeholder="Rabat %"></div>
+                                <div class="col-4"><input type="number" id="p-stock" class="form-control glass-input form-control-sm" placeholder="Stan" required></div>
+                                <div class="col-4"><input type="number" step="0.01" id="p-delivery" class="form-control glass-input form-control-sm" placeholder="Dostawa" required></div>
+                                <textarea id="p-img" class="form-control glass-input form-control-sm" placeholder="URL zdjęć (oddziel przecinkami)" rows="3"></textarea>
+                                <button type="submit" class="btn btn-primary btn-sm w-100">ZAPISZ PRODUKT</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="p-3 glass-panel h-100">
+                            <h6 class="fw-bold mb-3 text-uppercase small text-success">Konta & Kody</h6>
+                            <form id="user-form" class="row g-2 mb-2">
+                                <input type="hidden" id="u-id">
+                                <input type="text" id="u-login" class="form-control glass-input form-control-sm" placeholder="Login" required>
+                                <input type="text" id="u-pass" class="form-control glass-input form-control-sm" placeholder="Hasło" required>
+                                <select id="u-role" class="form-select glass-input form-select-sm"><option value="client">Klient</option><option value="employee">Admin</option></select>
+                                <button type="submit" class="btn btn-success btn-sm w-100">ZAPISZ KONTO</button>
+                            </form>
+                            <div id="users-list-admin" class="scroll-area mb-3" style="max-height:80px"></div>
+                            <form id="promo-form" class="row g-2 mb-2">
+                                <input type="text" id="promo-code" class="form-control glass-input form-control-sm" placeholder="KOD" required>
+                                <input type="number" id="promo-val" class="form-control glass-input form-control-sm" placeholder="%" required>
+                                <button type="submit" class="btn btn-warning btn-sm w-100">DODAJ KOD</button>
+                            </form>
+                            <div id="promo-list-admin" class="scroll-area" style="max-height:80px"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="p-3 glass-panel h-100">
+                            <h6 class="fw-bold mb-3 text-uppercase small text-info">Zamówienia</h6>
+                            <div class="table-responsive scroll-area">
+                                <table class="table table-sm table-dark table-borderless align-middle small">
+                                    <tbody id="orders-list-admin"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="shop-view">
+            <div class="glass-panel p-3 mb-4 d-flex flex-wrap gap-3 align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-sort-down text-primary"></i>
+                    <select id="sort-select" class="form-select glass-input form-select-sm" style="width: 200px;" onchange="render()">
+                        <option value="newest">Najnowsze</option>
+                        <option value="az">Nazwa: A-Z</option>
+                        <option value="za">Nazwa: Z-A</option>
+                        <option value="price-asc">Cena: od najniższej</option>
+                        <option value="price-desc">Cena: od najwyższej</option>
+                    </select>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="filter-promo" onchange="render()">
+                    <label class="form-check-label small" for="filter-promo">Tylko promocje</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="filter-available" onchange="render()">
+                    <label class="form-check-label small" for="filter-available">Tylko dostępne</label>
+                </div>
+            </div>
+
+            <div id="products-grid" class="row g-4 mb-5"></div>
+            <div id="client-orders-section" class="hidden mt-5 pt-5 border-top border-white border-opacity-10">
+                <h4 class="fw-bold mb-4"><i class="bi bi-box-seam me-2 text-primary"></i>Moje Zamówienia</h4>
+                <div id="client-orders-list" class="row g-3"></div>
+            </div>
+        </div>
+
+        <div id="product-detail" class="hidden">
+            <button class="btn btn-outline-light btn-sm mb-4 rounded-pill px-3" onclick="closeProduct()"><i class="bi bi-arrow-left"></i> Powrót do sklepu</button>
+            <div class="glass-panel p-4 mb-5">
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <img id="detail-img-main" src="" class="w-100 rounded-4 shadow mb-3" style="aspect-ratio: 1/1; object-fit: cover;">
+                        <div id="detail-gallery" class="d-flex gap-2 flex-wrap"></div>
+                    </div>
+                    <div class="col-md-7">
+                        <h2 id="detail-name" class="fw-bold mb-1"></h2>
+                        <div class="my-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <span id="detail-price-brutto" class="text-primary fw-bold fs-1"></span>
+                                <span id="detail-price-old" class="old-price fs-4"></span>
+                                <span id="detail-discount-tag" class="discount-badge position-static shadow-none"></span>
+                            </div>
+                            <div id="detail-delivery-info" class="text-info small fw-bold mt-1"></div>
+                            <small id="detail-omnibus" class="text-warning d-block mt-1"></small>
+                            <small id="detail-price-netto" class="opacity-50 d-block mt-2"></small>
+                        </div>
+                        
+                        <div id="purchase-controls" class="d-flex align-items-center gap-3 mb-4">
+                            <div id="detail-stock-container"></div>
+                            <div id="buy-area"></div>
+                        </div>
+
+                        <div id="detail-specs" class="mb-4"></div>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-5 border-top border-white border-opacity-10">
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <h4 class="fw-bold mb-4"><i class="bi bi-chat-left-text me-2"></i>Dodaj opinię</h4>
+                            <div id="review-form-container" class="glass-panel p-4">
+                                <div id="auth-review-msg" class="text-center py-3 hidden">
+                                    <p class="small opacity-50">Tylko zalogowani klienci mogą dodawać opinie.</p>
+                                </div>
+                                <form id="review-form">
+                                    <div class="mb-3">
+                                        <label class="small opacity-50 d-block mb-2">Twoja ocena</label>
+                                        <div class="star-rating-input">
+                                            <input type="radio" id="star5" name="rating" value="5" required/><label for="star5" class="bi bi-star-fill"></label>
+                                            <input type="radio" id="star4" name="rating" value="4"/><label for="star4" class="bi bi-star-fill"></label>
+                                            <input type="radio" id="star3" name="rating" value="3"/><label for="star3" class="bi bi-star-fill"></label>
+                                            <input type="radio" id="star2" name="rating" value="2"/><label for="star2" class="bi bi-star-fill"></label>
+                                            <input type="radio" id="star1" name="rating" value="1"/><label for="star1" class="bi bi-star-fill"></label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <textarea id="review-text" class="form-control glass-input" rows="3" placeholder="Co sądzisz o produkcie?" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">WYŚLIJ OPINIĘ</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <h4 class="fw-bold mb-4">Opinie (<span id="review-count">0</span>)</h4>
+                            <div id="reviews-list" class="scroll-area"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold mb-3"><i class="bi bi-stars text-warning me-2"></i>Produkty, które mogą Ci się spodobać</h5>
+            <div id="recommended-products" class="row g-3"></div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel" style="background: #020617; color: white; border: 1px solid var(--glass-border);">
+                <div class="modal-body p-4">
+                    <h4 class="fw-bold mb-4">Twój Koszyk</h4>
+                    <div id="cart-items" class="mb-4 scroll-area" style="max-height: 250px;"></div>
+                    <div class="input-group mb-3 glass-panel p-2">
+                        <input type="text" id="cart-promo-input" class="form-control glass-input" placeholder="Kod rabatowy">
+                        <button class="btn btn-warning" onclick="applyPromo()">OK</button>
+                    </div>
+                    <div class="border-top border-white border-opacity-10 pt-3">
+                        <div class="d-flex justify-content-between align-items-center small opacity-75 mb-1">
+                            <span>Produkty:</span>
+                            <span id="cart-subtotal">0.00 zł</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center small opacity-75 mb-2">
+                            <span>Dostawa:</span>
+                            <span id="cart-delivery-cost">0.00 zł</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fs-5 fw-bold">Do zapłaty:</span>
+                            <span id="cart-total" class="text-primary fs-2 fw-bold">0.00 zł</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow" onclick="checkout()">SFINALIZUJ ZAKUP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-panel" style="background: #0f172a; color: white;">
+                <div class="modal-header border-bottom border-white border-opacity-10">
+                    <h5 class="modal-title fw-bold">Szczegóły zamówienia</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <h6 class="text-uppercase small opacity-50 mb-3">Produkty</h6>
+                            <div id="order-details-content"></div>
+                        </div>
+                        <div class="col-md-5 border-start border-white border-opacity-10">
+                            <h6 class="text-uppercase small opacity-50 mb-3">Historia statusów</h6>
+                            <div id="order-history-content" class="scroll-area" style="max-height: 300px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const VAT = 1.23;
+        const STATUSES = ["Nowe", "W realizacji", "Zrealizowane", "Wysłane", "Odebrane", "Anulowane"];
+        
+        let users = JSON.parse(localStorage.getItem('tn_u')) || [{id: 1, login: 'admin', pass: 'admin', role: 'employee'}, {id: 2, login: 'klient', pass: '123', role: 'client'}];
+        let prods = JSON.parse(localStorage.getItem('tn_p')) || [];
+        let promos = JSON.parse(localStorage.getItem('tn_promo')) || [];
+        let orders = JSON.parse(localStorage.getItem('tn_orders')) || [];
+        let reviews = JSON.parse(localStorage.getItem('tn_reviews')) || []; // NOWOŚĆ: Opinie
+        let cart = []; 
+        let currUser = null; 
+        let activePromo = null;
+
+        function calcBrutto() {
+            const n = parseFloat(document.getElementById('p-price-netto').value) || 0;
+            document.getElementById('p-price-brutto').value = (n * VAT).toFixed(2);
+        }
+
+        function save() {
+            localStorage.setItem('tn_p', JSON.stringify(prods));
+            localStorage.setItem('tn_u', JSON.stringify(users));
+            localStorage.setItem('tn_promo', JSON.stringify(promos));
+            localStorage.setItem('tn_orders', JSON.stringify(orders));
+            localStorage.setItem('tn_reviews', JSON.stringify(reviews)); // NOWOŚĆ
+            render();
+        }
+
+        // --- Logika Opinii ---
+        function renderReviews(productId) {
+            const prodReviews = reviews.filter(r => r.productId === productId);
+            document.getElementById('review-count').innerText = prodReviews.length;
+            
+            const formContainer = document.getElementById('review-form');
+            const authMsg = document.getElementById('auth-review-msg');
+
+            if (currUser?.role === 'client') {
+                formContainer.classList.remove('hidden');
+                authMsg.classList.add('hidden');
+            } else {
+                formContainer.classList.add('hidden');
+                authMsg.classList.remove('hidden');
+            }
+
+            document.getElementById('reviews-list').innerHTML = prodReviews.slice().reverse().map(r => `
+                <div class="review-item">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="fw-bold text-primary">${r.user}</span>
+                        <span class="opacity-50">${r.date}</span>
+                    </div>
+                    <div class="rating-stars mb-2">${'<i class="bi bi-star-fill"></i>'.repeat(r.rating)}${'<i class="bi bi-star"></i>'.repeat(5-r.rating)}</div>
+                    <p class="small mb-0 opacity-75">${r.text}</p>
+                </div>
+            `).join('') || '<div class="opacity-50 text-center py-4 small">Brak opinii o tym produkcie. Bądź pierwszy!</div>';
+        }
+
+        document.getElementById('review-form').onsubmit = (e) => {
+            e.preventDefault();
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            if (!ratingInput) return alert("Wybierz ocenę!");
+
+            const pId = parseInt(document.getElementById('p-id').value);
+            reviews.push({
+                id: Date.now(),
+                productId: pId,
+                user: currUser.login,
+                rating: parseInt(ratingInput.value),
+                text: document.getElementById('review-text').value,
+                date: new Date().toLocaleDateString()
+            });
+            
+            e.target.reset();
+            save();
+            renderReviews(pId);
+        };
+
+        // --- Reszta Funkcji ---
+        function updateStats() {
+            if (!currUser || currUser.role !== 'employee') return;
+            const revenue = orders.filter(o => ["Zrealizowane", "Wysłane", "Odebrane"].includes(o.status)).reduce((sum, o) => sum + parseFloat(o.total.replace(' zł', '')), 0);
+            document.getElementById('stat-revenue').innerText = revenue.toFixed(2) + " zł";
+            const newOrders = orders.filter(o => o.status === "Nowe").length;
+            document.getElementById('stat-orders').innerText = `${newOrders} / ${orders.length}`;
+            const stockVal = prods.reduce((sum, p) => sum + (p.stock * p.priceNetto * VAT * (1 - p.discount/100)), 0);
+            document.getElementById('stat-stock-val').innerText = stockVal.toFixed(2) + " zł";
+            const counts = {};
+            orders.forEach(o => o.items.forEach(i => counts[i.name] = (counts[i.name] || 0) + 1));
+            const best = Object.entries(counts).sort((a,b) => b[1] - a[1])[0];
+            document.getElementById('stat-bestseller').innerText = best ? `${best[0]} (${best[1]}x)` : "-";
+        }
+
+        function render() {
+            updateStats();
+            let filteredProds = [...prods];
+            const onlyPromo = document.getElementById('filter-promo').checked;
+            const onlyAvailable = document.getElementById('filter-available').checked;
+            if (onlyPromo) filteredProds = filteredProds.filter(p => p.discount > 0);
+            if (onlyAvailable) filteredProds = filteredProds.filter(p => p.stock > 0);
+
+            const sortVal = document.getElementById('sort-select').value;
+            filteredProds.sort((a, b) => {
+                const priceA = a.priceNetto * (1 - a.discount / 100);
+                const priceB = b.priceNetto * (1 - b.discount / 100);
+                if (sortVal === 'az') return a.name.localeCompare(b.name);
+                if (sortVal === 'za') return b.name.localeCompare(a.name);
+                if (sortVal === 'price-asc') return priceA - priceB;
+                if (sortVal === 'price-desc') return priceB - priceA;
+                if (sortVal === 'newest') return b.id - a.id;
+                return 0;
+            });
+
+            document.getElementById('products-grid').innerHTML = filteredProds.map(p => {
+                const bBase = p.priceNetto * VAT, bFinal = bBase * (1 - p.discount/100);
+                const mainImg = (Array.isArray(p.img) && p.img.length > 0) ? p.img[0] : (p.img || 'https://via.placeholder.com/200');
+                return `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="product-card p-3 h-100 d-flex flex-column" onclick="showProduct(${p.id})">
+                        ${p.discount > 0 ? `<div class="discount-badge">-${p.discount}%</div>` : ''}
+                        ${currUser?.role === 'employee' ? `
+                        <div class="admin-tools">
+                            <button class="btn btn-info btn-sm rounded-circle" onclick="event.stopPropagation(); editProd(${p.id})"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-danger btn-sm rounded-circle" onclick="event.stopPropagation(); deleteProd(${p.id})"><i class="bi bi-trash"></i></button>
+                        </div>` : ''}
+                        <img src="${mainImg}" class="w-100 rounded-3 mb-2" style="height:140px; object-fit:cover;">
+                        <div class="fw-bold small text-truncate mb-1">${p.name}</div>
+                        <div class="mt-auto">
+                            <span class="text-primary fw-bold">${bFinal.toFixed(2)} zł</span>
+                            ${p.discount > 0 ? `<span class="old-price ms-1">${bBase.toFixed(2)} zł</span>` : ''}
+                            <div class="stock-tag small opacity-50 mt-1">Sztuk: ${p.stock}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') || '<div class="col-12 text-center opacity-50 py-5">Brak produktów.</div>';
+
+            if (currUser && currUser.role === 'client') {
+                const myOrders = orders.filter(o => o.user === currUser.login);
+                document.getElementById('client-orders-section').classList.remove('hidden');
+                document.getElementById('client-orders-list').innerHTML = myOrders.length ? myOrders.slice().reverse().map(o => `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-panel p-3 h-100 pointer" onclick="showOrderDetails(${o.id})">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <small class="opacity-50 text-uppercase">${o.date}</small>
+                                <span class="status-badge">${o.status}</span>
+                            </div>
+                            <div class="fw-bold text-primary fs-5 mt-2">${o.total}</div>
+                            <small class="text-warning d-block mt-1" style="font-size: 0.75rem;">Numer: #${o.id}</small>
+                        </div>
+                    </div>
+                `).join('') : '<div class="opacity-50 ps-2">Brak zamówień.</div>';
+            }
+
+            document.getElementById('orders-list-admin').innerHTML = orders.slice().reverse().map(o => `
+                <tr class="border-bottom border-white border-opacity-5">
+                    <td class="py-2">
+                        <div class="pointer text-info fw-bold" onclick="showOrderDetails(${o.id})">
+                            ${o.user} <i class="bi bi-eye small"></i>
+                        </div>
+                        <small class="opacity-50 d-block">${o.date}</small>
+                        <small class="text-warning" style="font-size: 0.7rem;">ID: #${o.id}</small> 
+                    </td>
+                    <td class="text-primary fw-bold">${o.total}</td>
+                    <td><select class="status-select" onchange="updateStatus(${o.id}, this.value)">
+                        ${STATUSES.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                    </select></td>
+                    <td><i class="bi bi-trash text-danger pointer" onclick="deleteOrder(${o.id})"></i></td>
+                </tr>`).join('');
+
+            document.getElementById('users-list-admin').innerHTML = users.map(u => `
+                <div class="small py-1 border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center">
+                    <span>${u.login} <span class="badge bg-secondary" style="font-size:0.6rem">${u.role}</span></span>
+                    <div>
+                        <i class="bi bi-pencil pointer text-info me-2" onclick="editUser(${u.id})"></i>
+                        <i class="bi bi-trash pointer text-danger" onclick="deleteUser(${u.id})"></i>
+                    </div>
+                </div>`).join('');
+            
+            document.getElementById('promo-list-admin').innerHTML = promos.map(p => `
+                <div class="small py-1 border-bottom border-white border-opacity-10 d-flex justify-content-between">
+                    <span>${p.code} <b>(-${p.val}%)</b></span>
+                    <i class="bi bi-trash pointer text-danger" onclick="promos=promos.filter(x=>x.id!==${p.id});save();"></i>
+                </div>`).join('');
+
+            updateCartUI();
+        }
+
+        function showOrderDetails(id) {
+            const o = orders.find(x => x.id === id);
+            if(!o) return;
+
+            let prodHtml = `<div class="mb-1 small text-warning">Numer: #${o.id}</div><div class="mb-3 small opacity-50">Data: ${o.date}</div>`;
+            if(o.items) {
+                prodHtml += o.items.map(item => `
+                    <div class="d-flex justify-content-between py-2 border-bottom border-white border-opacity-5 small">
+                        <span>${item.name}</span>
+                        <span class="text-primary fw-bold">${item.price.toFixed(2)} zł</span>
+                    </div>
+                `).join('');
+            }
+            prodHtml += `<div class="d-flex justify-content-between mt-3 fs-5 fw-bold"><span>Razem:</span><span class="text-primary">${o.total}</span></div>`;
+            document.getElementById('order-details-content').innerHTML = prodHtml;
+
+            const historyHtml = (o.history || []).map(h => `
+                <div class="history-item">
+                    <div class="history-date">${h.date}</div>
+                    <div class="history-status">${h.status}</div>
+                </div>
+            `).join('') || '<div class="small opacity-50">Brak danych historycznych.</div>';
+            document.getElementById('order-history-content').innerHTML = historyHtml;
+
+            new bootstrap.Modal(document.getElementById('orderDetailsModal')).show();
+        }
+
+        function checkout() {
+            if (cart.length === 0) return alert("Koszyk jest pusty!");
+            const itemsSnapshot = cart.map(i => ({ name: i.name, price: i.price }));
+            cart.forEach(item => { const p = prods.find(x => x.id === item.id); if (p && p.stock > 0) p.stock--; });
+            
+            const now = new Date().toLocaleString();
+            orders.push({
+                id: Date.now(),
+                user: currUser.login,
+                total: document.getElementById('cart-total').innerText,
+                items: itemsSnapshot, 
+                date: now,
+                status: "Nowe",
+                history: [{ date: now, status: "Złożenie zamówienia (Nowe)" }]
+            });
+            
+            cart = []; activePromo = null;
+            bootstrap.Modal.getInstance(document.getElementById('cartModal'))?.hide();
+            alert("Zamówienie przyjęte!");
+            save(); closeProduct();
+        }
+
+        function addToCart(id) {
+            const p = prods.find(x => x.id === id);
+            const inCart = cart.filter(c => c.id === id).length;
+            if (inCart < p.stock) {
+                const price = (p.priceNetto * VAT * (1 - p.discount/100));
+                cart.push({id: p.id, name: p.name, price: price, delivery: p.deliveryPrice || 0});
+                updateCartUI();
+            } else alert("Brak towaru!");
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            let subtotal = cart.reduce((s, i) => s + i.price, 0);
+            let deliveryCost = cart.length > 0 ? Math.max(...cart.map(i => i.delivery)) : 0;
+            if(activePromo) subtotal *= (1 - activePromo.val/100);
+            let total = subtotal + deliveryCost;
+            document.getElementById('cart-subtotal').innerText = subtotal.toFixed(2) + " zł";
+            document.getElementById('cart-delivery-cost').innerText = deliveryCost.toFixed(2) + " zł";
+            document.getElementById('cart-total').innerText = total.toFixed(2) + " zł";
+            document.getElementById('cart-items').innerHTML = cart.map((i, idx) => `
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 glass-panel rounded">
+                    <div class="small text-truncate me-2">${i.name}</div>
+                    <div class="d-flex align-items-center">
+                        <span class="small me-2 fw-bold text-primary">${i.price.toFixed(2)} zł</span>
+                        <i class="bi bi-x-circle text-danger pointer" onclick="cart.splice(${idx},1);updateCartUI()"></i>
+                    </div>
+                </div>`).join('') || '<div class="text-center opacity-50 py-3">Pusto</div>';
+        }
+
+        function showProduct(id) {
+            const p = prods.find(x => x.id === id);
+            document.getElementById('p-id').value = p.id; // Ustawienie ukrytego ID dla formularza opinii
+            
+            const bBase = p.priceNetto * VAT, bFinal = bBase * (1 - p.discount/100);
+            const images = Array.isArray(p.img) ? p.img : (p.img ? [p.img] : []);
+            const mainImg = document.getElementById('detail-img-main');
+            mainImg.src = images[0] || 'https://via.placeholder.com/400';
+            const gallery = document.getElementById('detail-gallery');
+            gallery.innerHTML = images.map((src, i) => `
+                <img src="${src}" class="thumb-img ${i===0?'active':''}" onclick="changeImg(this, '${src}')">
+            `).join('');
+
+            document.getElementById('detail-name').innerText = p.name;
+            document.getElementById('detail-price-brutto').innerText = bFinal.toFixed(2) + " zł";
+            document.getElementById('detail-price-old').innerText = p.discount > 0 ? bBase.toFixed(2) + " zł" : "";
+            document.getElementById('detail-price-netto').innerText = `Netto: ${p.priceNetto.toFixed(2)} zł`;
+            document.getElementById('detail-delivery-info').innerText = `Koszt dostawy: ${(p.deliveryPrice || 0).toFixed(2)} zł`;
+            
+            const badge = document.getElementById('detail-discount-tag');
+            const omnibus = document.getElementById('detail-omnibus');
+            if(p.discount > 0) {
+                badge.innerText = `-${p.discount}%`; badge.classList.remove('hidden');
+                omnibus.innerText = `Najniższa cena z ostatnich 30dni: ${bBase.toFixed(2)} zł`;
+            } else { badge.classList.add('hidden'); omnibus.innerText = ""; }
+
+            const stockCont = document.getElementById('detail-stock-container');
+            if (p.stock > 0) {
+                stockCont.innerHTML = `<div class="neon-stock neon-stock-available"><i class="bi bi-box-seam me-2"></i> W magazynie: ${p.stock} szt.</div>`;
+                document.getElementById('buy-area').innerHTML = (currUser?.role === 'client') ? 
+                    `<button class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm" onclick="addToCart(${p.id})">DODAJ DO KOSZYKA</button>` : '';
+            } else {
+                stockCont.innerHTML = `<div class="neon-stock neon-stock-empty"><i class="bi bi-box-seam me-2"></i> Brak na stanie</div>`;
+                document.getElementById('buy-area').innerHTML = '';
+            }
+
+            document.getElementById('detail-specs').innerHTML = p.spec ? p.spec.split('\n').map(s => `<div class="spec-item">${s}</div>`).join('') : '';
+            
+            // Rekomendacje
+            const others = prods.filter(x => x.id !== id).sort(() => 0.5 - Math.random()).slice(0, 4);
+            document.getElementById('recommended-products').innerHTML = others.map(o => `
+                <div class="col-6 col-md-3">
+                    <div class="recommended-card h-100 d-flex flex-column" onclick="showProduct(${o.id})">
+                        <img src="${(Array.isArray(o.img) && o.img.length > 0) ? o.img[0] : (o.img || 'https://via.placeholder.com/150')}" class="w-100 rounded mb-2" style="height:80px; object-fit:cover;">
+                        <div class="small fw-bold text-truncate mb-1">${o.name}</div>
+                        <div class="mt-auto text-primary fw-bold small">${(o.priceNetto * VAT * (1 - o.discount/100)).toFixed(2)} zł</div>
+                    </div>
+                </div>`).join('') || '<div class="small opacity-50">Brak propozycji.</div>';
+            
+            renderReviews(id); // NOWOŚĆ: Wyświetlenie opinii
+            
+            document.getElementById('shop-view').classList.add('hidden'); 
+            document.getElementById('product-detail').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        function changeImg(el, src) { document.getElementById('detail-img-main').src = src; document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('active')); el.classList.add('active'); }
+        function applyPromo() { const code = document.getElementById('cart-promo-input').value.toUpperCase(); const found = promos.find(p => p.code === code); if(found) { activePromo = found; updateCartUI(); alert("Zniżka!"); } else alert("Zły kod."); }
+
+        document.getElementById('auth-form').onsubmit = (e) => {
+            e.preventDefault();
+            const u = users.find(x => x.login === document.getElementById('login').value && x.pass === document.getElementById('pass').value);
+            if(u) {
+                currUser = u;
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('app-view').classList.remove('hidden');
+                document.getElementById('nav-logout-btn').classList.remove('hidden');
+                if(u.role === 'employee') document.getElementById('admin-panel').classList.remove('hidden');
+                else document.getElementById('nav-cart-btn').classList.remove('hidden');
+                render();
+            } else alert("Błąd logowania!");
+        };
+
+        document.getElementById('user-form').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('u-id').value;
+            const data = { id: id ? parseInt(id) : Date.now(), login: document.getElementById('u-login').value, pass: document.getElementById('u-pass').value, role: document.getElementById('u-role').value };
+            if(id) { const idx = users.findIndex(x => x.id == id); users[idx] = data; } else users.push(data);
+            save(); e.target.reset(); document.getElementById('u-id').value = '';
+        };
+
+        document.getElementById('prod-form').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('p-id').value;
+            const imgRaw = document.getElementById('p-img').value;
+            const imgArray = imgRaw.split(',').map(s => s.trim()).filter(s => s !== "");
+            const data = { id: id ? parseInt(id) : Date.now(), name: document.getElementById('p-name').value, spec: document.getElementById('p-spec').value, priceNetto: parseFloat(document.getElementById('p-price-netto').value), discount: parseInt(document.getElementById('p-discount').value) || 0, stock: parseInt(document.getElementById('p-stock').value), deliveryPrice: parseFloat(document.getElementById('p-delivery').value) || 0, img: imgArray };
+            if(id) { const idx = prods.findIndex(x => x.id == id); prods[idx] = data; } else prods.push(data); 
+            save(); e.target.reset(); document.getElementById('p-id').value = '';
+        };
+
+        document.getElementById('promo-form').onsubmit = (e) => {
+            e.preventDefault();
+            promos.push({ id: Date.now(), code: document.getElementById('promo-code').value.toUpperCase(), val: parseInt(document.getElementById('promo-val').value) }); 
+            save(); e.target.reset();
+        };
+
+        function updateStatus(id, s) { 
+            const o = orders.find(x => x.id === id); 
+            if(o && o.status !== s) { 
+                o.status = s; 
+                if(!o.history) o.history = [];
+                o.history.push({ date: new Date().toLocaleString(), status: s });
+                save(); 
+            } 
+        }
+
+        function deleteProd(id) { if(confirm("Usunąć produkt?")) { prods=prods.filter(x=>x.id!==id); save(); } }
+        function deleteOrder(id) { if(confirm("Usunąć zamówienie?")) { orders=orders.filter(x=>x.id!==id); save(); } }
+        function deleteUser(id) { if (currUser && id === currUser.id) return alert("Nie możesz usunąć siebie!"); if (confirm("Usunąć konto?")) { users = users.filter(u => u.id !== id); save(); } }
+        function editUser(id) { const u = users.find(x => x.id === id); document.getElementById('u-id').value = u.id; document.getElementById('u-login').value = u.login; document.getElementById('u-pass').value = u.pass; document.getElementById('u-role').value = u.role; }
+        function editProd(id) { const p = prods.find(x => x.id === id); document.getElementById('p-id').value = p.id; document.getElementById('p-name').value = p.name; document.getElementById('p-spec').value = p.spec; document.getElementById('p-price-netto').value = p.priceNetto; document.getElementById('p-discount').value = p.discount; document.getElementById('p-stock').value = p.stock; document.getElementById('p-delivery').value = p.deliveryPrice || 0; document.getElementById('p-img').value = Array.isArray(p.img) ? p.img.join(', ') : p.img; calcBrutto(); window.scrollTo(0,0); }
+        function closeProduct() { document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('product-detail').classList.add('hidden'); }
+        function logout() { location.reload(); }
+        render();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
