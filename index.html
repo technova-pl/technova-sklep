@@ -835,7 +835,8 @@ function deleteProd(id) { if(confirm("Usunąć produkt?")) { prods=prods.filter(
         function closeProduct() { document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('product-detail').classList.add('hidden'); }
         function logout() { location.reload(); }
         render();
-    window.logout = logout;
+window.login = login; // Tego brakuje w Twoim pliku    
+window.logout = logout;
 window.showProduct = showProduct;
 window.addToCart = addToCart;
 window.editProd = editProd;
