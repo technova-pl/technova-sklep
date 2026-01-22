@@ -13,6 +13,9 @@
 </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechNova - Professional Store</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -102,17 +105,28 @@
         </div>
     </nav>
 
-    <div id="auth-section" class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
-        <div class="glass-panel p-5 w-100 shadow-lg" style="max-width: 400px;">
+<div id="auth-section" class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+        <div id="login-box" class="glass-panel p-5 w-100 shadow-lg" style="max-width: 400px;">
             <h4 class="text-center fw-bold mb-4">Panel Logowania</h4>
             <form id="auth-form">
                 <input type="text" id="login" class="form-control glass-input mb-3" placeholder="Login" required>
                 <input type="password" id="pass" class="form-control glass-input mb-4" placeholder="Hasło" required>
                 <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">ZALOGUJ</button>
             </form>
+
+            <div class="mt-4 pt-3 border-top border-white border-opacity-10 text-center">
+                <p class="small opacity-75 mb-0">
+                    Aby wejść na sklep musisz się zalogować.<br>
+                    Nie posiadasz konta? Napisz do: <br>
+                    <a href="mailto:k.gnyp09@wp.pl" class="text-accent text-decoration-none fw-bold">
+                        k.gnyp09@wp.pl
+                    </a> <br>
+                    a wyśle Ci dane do konta
+WYMAGANE PODANIE IMIĘ I NAZWISKO 
+                </p>
+            </div>
         </div>
     </div>
-
     <div id="app-view" class="container hidden pb-5">
         
         <div id="admin-panel" class="hidden mb-5">
@@ -575,12 +589,12 @@ loadData();
                     </div>
                 </div>`).join('');
             
-            document.getElementById('promo-list-admin').innerHTML = promos.map(p => `
-                <div class="small py-1 border-bottom border-white border-opacity-10 d-flex justify-content-between">
-                    <span>${p.code} <b>(-${p.val}%)</b></span>
-                    <i class="bi bi-trash pointer text-danger" onclick="promos=promos.filter(x=>x.id!==${p.id});save();"></i>
-                </div>`).join('');
-
+document.getElementById('promo-list-admin').innerHTML = promos.map(p => `
+    <div class="d-flex justify-content-between align-items-center mb-1 small glass-panel p-2">
+        <span>${p.code} (-${p.val}%)</span>
+        <i class="bi bi-trash text-danger pointer" onclick="deletePromo('${p.code}')"></i>
+    </div>
+`).join('');
             updateCartUI();
         }
 
@@ -834,7 +848,16 @@ function deleteProd(id) { if(confirm("Usunąć produkt?")) { prods=prods.filter(
         function editProd(id) { const p = prods.find(x => x.id === id); document.getElementById('p-id').value = p.id; document.getElementById('p-name').value = p.name; document.getElementById('p-spec').value = p.spec; document.getElementById('p-price-netto').value = p.priceNetto; document.getElementById('p-discount').value = p.discount; document.getElementById('p-stock').value = p.stock; document.getElementById('p-delivery').value = p.deliveryPrice || 0; document.getElementById('p-img').value = Array.isArray(p.img) ? p.img.join(', ') : p.img; calcBrutto(); window.scrollTo(0,0); }
         function closeProduct() { document.getElementById('shop-view').classList.remove('hidden'); document.getElementById('product-detail').classList.add('hidden'); }
         function logout() { location.reload(); }
-        render();
+// --- FUNKCJA USUWANIA KODÓW ---
+function deletePromo(code) {
+    if (confirm(`Czy na pewno chcesz usunąć kod: ${code}?`)) {
+        // Filtrujemy tablicę promos, usuwając wybrany kod
+        promos = promos.filter(p => p.code !== code);
+        // Zapisujemy nową listę do Firebase
+        save();
+    }
+}        
+render();
     window.logout = logout;
 window.showProduct = showProduct;
 window.addToCart = addToCart;
@@ -848,6 +871,7 @@ window.updateStatus = updateStatus;
 window.showOrderDetails = showOrderDetails;
 window.deleteOrder = deleteOrder; // DODAJ TĘ LINIĘ
 window.applyPromo = applyPromo;
+window.deletePromo = deletePromo;
 window.checkout = checkout;
 window.confirmBlik = confirmBlik; // DODAJ TĘ LINIĘ
 window.closeProduct = closeProduct;
