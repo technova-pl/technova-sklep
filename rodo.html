@@ -7,30 +7,80 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #0f0f0f; color: white; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
-        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 40px; margin-top: 50px; }
-        .info-card { background: rgba(13, 110, 253, 0.1); border-left: 4px solid #0d6efd; padding: 15px; margin-top: 20px; }
+        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 40px; margin-top: 50px; margin-bottom: 50px; }
+        .text-accent { color: #0d6efd; }
+        h4 { color: #0d6efd; margin-top: 25px; border-bottom: 1px solid rgba(13, 110, 253, 0.3); padding-bottom: 10px; }
+        p, li { color: rgba(255, 255, 255, 0.8); line-height: 1.6; }
+        .highlight-box { background: rgba(13, 110, 253, 0.1); border-left: 4px solid #0d6efd; padding: 20px; border-radius: 0 10px 10px 0; margin: 20px 0; }
+        footer { background: rgba(255, 255, 255, 0.05); padding: 20px 0; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="glass-panel">
-            <h1 class="mb-4">Klauzula Informacyjna (RODO)</h1>
-            <p>Zgodnie z ogólnym rozporządzeniem o ochronie danych (RODO), informujemy o zasadach przetwarzania danych:</p>
+        <div class="glass-panel shadow-lg">
+            <h1 class="text-accent mb-4 text-center">Klauzula Informacyjna RODO</h1>
+            <p class="text-center text-white-50">Obowiązek informacyjny na podstawie art. 13 RODO</p>
+            <hr class="border-secondary mb-4">
             
-            <div class="info-card">
-                <strong>Twoje prawa:</strong>
-                <ul class="mb-0">
-                    <li>Prawo dostępu do treści danych</li>
-                    <li>Prawo do sprostowania danych</li>
-                    <li>Prawo do usunięcia danych ("prawo do bycia zapomnianym")</li>
-                    <li>Prawo do ograniczenia przetwarzania</li>
+            <section>
+                <h4>1. Kto jest administratorem Twoich danych?</h4>
+                <p>Administratorem danych osobowych zbieranych za pośrednictwem sklepu internetowego jest <strong>TechNova</strong> z siedzibą w ul. Dolna 17, Kraków, NIP: 4739740411, e-mail: iod.technova@proton.me (dalej jako "Administrator").</p>
+            </section>
+
+            <section>
+                <h4>2. W jakim celu i na jakiej podstawie przetwarzamy dane?</h4>
+                <p>Twoje dane osobowe przetwarzane są w następujących celach:</p>
+                <ul>
+                    <li><strong>Realizacja zamówienia i umowy sprzedaży:</strong> podstawa prawna: art. 6 ust. 1 lit. b RODO (niezbędność do wykonania umowy).</li>
+                    <li><strong>Wypełnienie obowiązków prawnych:</strong> np. wystawianie i przechowywanie faktur oraz dokumentów księgowych (art. 6 ust. 1 lit. c RODO).</li>
+                    <li><strong>Ustalenie, dochodzenie lub obrona roszczeń:</strong> podstawa prawna: art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes).</li>
+                    <li><strong>Obsługa zapytań:</strong> poprzez formularz kontaktowy lub e-mail (art. 6 ust. 1 lit. f RODO).</li>
                 </ul>
+            </section>
+
+            <div class="highlight-box">
+                <strong>Ważne:</strong> Podanie danych jest dobrowolne, ale niezbędne do złożenia zamówienia. Bez podania adresu e-mail oraz danych do wysyłki nie będziemy mogli zrealizować Twojego zakupu.
             </div>
 
-            <p class="mt-4 text-white-50">Twoje dane są przetwarzane wyłącznie w celu realizacji umowy sprzedaży oraz (jeśli wyrazisz zgodę) w celach marketingowych. Nie udostępniamy Twoich danych osobom trzecim, z wyjątkiem firm kurierskich realizujących dostawę.</p>
+            <section>
+                <h4>3. Jakie masz prawa?</h4>
+                <p>W związku z przetwarzaniem przez nas danych osobowych, przysługują Ci następujące uprawnienia:</p>
+                <ul>
+                    <li>Prawo dostępu do swoich danych oraz otrzymania ich kopii.</li>
+                    <li>Prawo do sprostowania (poprawiania) swoich danych.</li>
+                    <li>Prawo do usunięcia danych ("prawo do bycia zapomnianym").</li>
+                    <li>Prawo do ograniczenia przetwarzania danych.</li>
+                    <li>Prawo do przenoszenia danych.</li>
+                    <li>Prawo do wniesienia sprzeciwu wobec przetwarzania.</li>
+                </ul>
+                <p>Masz również prawo wniesienia skargi do organu nadzorczego – <strong>Prezesa Urzędu Ochrony Danych Osobowych (PUODO)</strong>, jeśli uznasz, że przetwarzanie danych narusza przepisy.</p>
+            </section>
 
-            <a href="index.html" class="btn btn-outline-light rounded-pill mt-4">Rozumiem</a>
+            <section>
+                <h4>4. Komu przekazujemy dane?</h4>
+                <p>Twoje dane mogą być udostępniane podmiotom, które pomagają nam w prowadzeniu sklepu:</p>
+                <ul>
+                    <li>Firmom kurierskim (DPD, InPost, Poczta Polska).</li>
+                    <li>Operatorom płatności elektronicznych.</li>
+                    <li>Dostawcom usług księgowych i informatycznych (hosting).</li>
+                </ul>
+            </section>
+
+            <section>
+                <h4>5. Jak długo przechowujemy dane?</h4>
+                <p>Dane przetwarzane w celu realizacji zamówienia są przechowywane do czasu przedawnienia roszczeń z tytułu umowy lub przez okres wymagany przepisami prawa podatkowego (5 lat od końca roku kalendarzowego).</p>
+            </section>
+
+            <div class="text-center">
+                <a href="index.html" class="btn btn-primary rounded-pill mt-4 px-5 fw-bold">Rozumiem i wracam do sklepu</a>
+            </div>
         </div>
     </div>
+
+    <footer>
+        <div class="container text-center text-white-50 small">
+            &copy; 2026 TechNova. Wszystkie prawa zastrzeżone.
+        </div>
+    </footer>
 </body>
 </html>
