@@ -931,7 +931,7 @@ document.getElementById('promo-list-admin').innerHTML = promos.map(p => `
                 if(u.role === 'employee') document.getElementById('admin-panel').classList.remove('hidden');
                 else document.getElementById('nav-cart-btn').classList.remove('hidden');
                 render();
-            } else alert("Błąd logowania!");
+            } else alert("Nie prawidłowy login lub hasło, spróbuj jeszcze raz!");
         };
 
         document.getElementById('user-form').onsubmit = (e) => {
